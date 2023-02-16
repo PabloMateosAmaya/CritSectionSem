@@ -1,35 +1,35 @@
 from multiprocessing import Process
 from multiprocessing import current_process
 from multiprocessing import Value, Array
-
+from multiprocessing import BoundedSemaphore
+import time
+import random
 N = 8
-
-def is_anybody_inside(critical, tid):
+sem=BoundedSemaphore(1)
+'''def is_anybody_inside(critical, tid):
     found = False
     i = 0
     while i<len(critical) and not found:
         found = tid!=i and critical[i]==1
         i += 1
-    return found
+    return found'''
 
 def task(common, tid, critical, turn):
     a = 0
-    for i in range(100):
-        print(f'{tid}−{i}: Non−critical Section')
+    for i in range(20):
+        print(f'{tid}−{i}: Non−critical Section',flush=True)
         a += 1
-        print(f'{tid}−{i}: End of non−critical Section')
+        print(f'{tid}−{i}: End of non−critical Section',flush=True)
+        time.sleep(random.random())
         critical[tid] = 1
-        while is_anybody_inside(critical, tid):
-            critical[tid] = 0
-            print(f'{tid}−{i}: Giving up')
-            while turn.value==tid:
-                pass
-            critical[tid] = 1
-        print(f'{tid}−{i}: Critical section')
+        sem.acquire()
+        print(f'{tid}−{i}: Critical section',flush=True)
         v = common.value + 1
-        print(f'{tid}−{i}: Inside critical section')
+        print(f'{tid}−{i}: Inside critical section',flush=True)
+        time.sleep(random.random())
         common.value = v
-        print(f'{tid}−{i}: End of critical section')
+        print(f'{tid}−{i}: End of critical section',flush=True)
+        sem.release()
         critical[tid] = 0
         turn.value = tid
 def main():
