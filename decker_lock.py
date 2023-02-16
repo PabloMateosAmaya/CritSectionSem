@@ -2,6 +2,9 @@ from multiprocessing import Process
 from multiprocessing import current_process
 from multiprocessing import Value, Array
 from multiprocessing import Lock
+import time
+import random
+
 N = 8
 lock = Lock()
 def is_anybody_inside(critical, tid):
@@ -15,25 +18,18 @@ def is_anybody_inside(critical, tid):
 def task(common, tid, critical, turn):
     a = 0
     for i in range(20):
-        print(f'{tid}−{i}: Non−critical Section')
-        a += 1
-        print(f'{tid}−{i}: End of non−critical Section')
-        critical[tid] = 1
-        while is_anybody_inside(critical, tid):
-            critical[tid] = 0
-            print(f'{tid}−{i}: Giving up')
-            while turn.value==tid:
-                pass
-            critical[tid] = 1
+        print(f'{tid}−{i}: Non−critical Section',flush=True)
+        time.sleep(random.random())
+        print(f'{tid}−{i}: End of non−critical Section',flush=True)
         lock.acquire()
-        print(f'{tid}−{i}: Critical section')
+        print(f'{tid}−{i}: Critical section',flush=True)
         v = common.value + 1
-        print(f'{tid}−{i}: Inside critical section')
+        print(f'{tid}−{i}: Inside critical section',flush=True)
+        time.sleep(random.random())
         common.value = v
-        print(f'{tid}−{i}: End of critical section')
-        critical[tid] = 0
-        turn.value = tid
+        print(f'{tid}−{i}: End of critical section',flush=True)
         lock.release()
+
 def main():
     lp = []
     common = Value('i', 0)
